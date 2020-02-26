@@ -6,7 +6,9 @@ apt update
 apt upgrade -y
 
 # Install dependencies
-apt install -y sudo openjdk-11-jdk git build-essential python cmake wget libgmp-dev
+apt install -y sudo openjdk-11-jdk git build-essential \
+ python cmake wget libgmp-dev curl \
+ rsync mercurial m4 unzip darcs
 
 # Setup normal user
 useradd -m user -G sudo -s /bin/bash
