@@ -2,7 +2,8 @@ FROM debian:buster
 COPY ./scripts /scripts
 RUN /scripts/prepare.sh
 
-COPY --chown=user ./cvc4_runscripts /home/user
+COPY ./cvc4_runscripts /home/user
+RUN chown -R user /home/user/cvc4_runscripts
 COPY ./loopinvgen-lib.zip /build
 COPY ./EUSolver-2018.zip /build
 COPY ./benchmarks.zip /build
