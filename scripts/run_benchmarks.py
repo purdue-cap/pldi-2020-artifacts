@@ -218,9 +218,9 @@ def print_stats(solvers=None, benchmarks=None):
             total += 1
             total_time += db[s][b][1]
         print(f"Solver {s:10} TOTAL {total:>3}:DONE {done:>3},"
-               " TIMEOUT {timeout:>3}, NONZERO {nonzero:>3},"
-               " NO_OUTPUT {no_output:>3}, TOTAL_TIME {total_time:>10.1f},"
-               " DONE_TIME {done_time:>10.1f}")
+              f" TIMEOUT {timeout:>3}, NONZERO {nonzero:>3},"
+              f" NO_OUTPUT {no_output:>3}, TOTAL_TIME {total_time:>10.1f},"
+              f" DONE_TIME {done_time:>10.1f}")
 
 
 def main():
