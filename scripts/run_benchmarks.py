@@ -204,13 +204,15 @@ def run_batch(solvers, benchmarks):
                 else:
                     result = pool.apply_async(run_others, [s, b])
                 result_pool.append((s, b, result))
+            elif options.verbose:
+                print(f"Skipping {s} on {b[0]}")
     pool.close()
     pool.join()
     for result_pair in result_pool:
         (s, b, result) = result_pair
         if not s in db:
             db[s] = {}
-        db[s][b] = result
+        db[s][b] = result.get()
 
 def print_stats():
     for s in db:
