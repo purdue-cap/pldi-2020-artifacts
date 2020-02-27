@@ -196,7 +196,7 @@ def run_batch(solvers, benchmarks):
     result_pool = []
     for s in solvers:
         for b in benchmarks:
-            if options.force or not has_it_in_db(s, b):
+            if options.force or not has_it_in_db(s, b[0]):
                 if s == "dryadsynth":
                     result = pool.apply_async(run_dryadsynth, [b])
                 elif s == "cvc4":
