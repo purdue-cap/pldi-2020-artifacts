@@ -6,6 +6,7 @@ import subprocess
 from optparse import OptionParser
 from functools import partial
 from multiprocessing.dummy import Pool
+from time import time
 
 parser = OptionParser()
 parser.add_option("-s", "--solver", dest="solvers", action="append", choices=["dryadsynth", "loopinvgen", "cvc4", "eusolver"],
@@ -94,8 +95,9 @@ def get_benchmarks():
             benchmarks.extend((s, t) for s in paths)
     return benchmarks
 
-# returns result = one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT")
+# returns result = (one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT"), running_time)
 def run_subprocess(args, solver_to_report, path_to_report):
+    start_time = time()
     try:
         result = subprocess.Popen(args,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -108,21 +110,21 @@ def run_subprocess(args, solver_to_report, path_to_report):
             result.kill()
         if options.verbose:
             print(f"TIMEOUT: {solver_to_report} on {path_to_report}")
-        return "TIMEOUT"
+        return ("TIMEOUT", time() - start_time)
     if result.returncode != 0:
         if options.verbose:
             print(f"NONZERO: {solver_to_report} on {path_to_report}")
-        return "NONZERO"
+        return ("NONZERO", time() - start_time)
     if not stdout.strip():
         if options.verbose:
             print(f"NO_OUTPUT: {solver_to_report} on {path_to_report}")
-        return "NO_OUTPUT"
+        return ("NO_OUTPUT", time() - start_time)
 
     if options.verbose:
         print(f"DONE: {solver_to_report} on {path_to_report}")
-    return "DONE"
+    return ("DONE", time() - start_time)
 
-# returns result = one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT")
+# returns result = (one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT"), running_time)
 def run_dryadsynth(benchmark):
     (path, track) = benchmark
     if options.verbose:
@@ -137,6 +139,7 @@ def run_dryadsynth(benchmark):
     return run_subprocess([options.dryadsynth] + flags + [path], "dryadsynth", path)
 
 
+# returns result = (one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT"), running_time)
 def run_cvc4(benchmark):
     (path, track) = benchmark
     if options.verbose:
@@ -150,7 +153,7 @@ def run_cvc4(benchmark):
 
     return run_subprocess([cmd, path], "cvc4", path)
 
-# returns result = one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT")
+# returns result = (one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT"), running_time)
 def run_others(solver, benchmark):
     (path, _) = benchmark
     if options.verbose:
@@ -198,19 +201,26 @@ def print_stats(solvers=None, benchmarks=None):
         nonzero = 0
         no_output = 0
         total = 0
+        total_time = 0.0
+        done_time = 0.0
         for b in db[s]:
             if not benchmarks is None and not b in benchmarks:
                 continue
-            if db[s][b] == "DONE":
+            if db[s][b][0] == "DONE":
                 done += 1
-            elif db[s][b] == "TIMEOUT":
+                done_time += db[s][b][1]
+            elif db[s][b][0] == "TIMEOUT":
                 timeout += 1
-            elif db[s][b] == "NONZERO":
+            elif db[s][b][0] == "NONZERO":
                 nonzero += 1
-            elif db[s][b] == "NO_OUTPUT":
+            elif db[s][b][0] == "NO_OUTPUT":
                 no_output += 1
             total += 1
-        print(f"Solver {s:10} TOTAL {total:>3}:DONE {done:>3}, TIMEOUT {timeout:>3}, NONZERO {nonzero:>3}, NO_OUTPUT {no_output:>3}")
+            total_time += db[s][b][1]
+        print(f"Solver {s:10} TOTAL {total:>3}:DONE {done:>3},"
+               " TIMEOUT {timeout:>3}, NONZERO {nonzero:>3},"
+               " NO_OUTPUT {no_output:>3}, TOTAL_TIME {total_time:>10.1f},"
+               " DONE_TIME {done_time:>10.1f}")
 
 
 def main():
