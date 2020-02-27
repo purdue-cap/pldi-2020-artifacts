@@ -99,7 +99,7 @@ def run_subprocess(args, solver_to_report, path_to_report):
     try:
         result = subprocess.Popen(args,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        result.communicate(timeout=options.timeout)
+        (stdout, _) = result.communicate(timeout=options.timeout)
     except subprocess.TimeoutExpired:
         result.terminate()
         try:
@@ -113,7 +113,7 @@ def run_subprocess(args, solver_to_report, path_to_report):
         if options.verbose:
             print(f"NONZERO: {solver_to_report} on {path_to_report}")
         return "NONZERO"
-    if not result.stdout.strip():
+    if not stdout.strip():
         if options.verbose:
             print(f"NO_OUTPUT: {solver_to_report} on {path_to_report}")
         return "NO_OUTPUT"
