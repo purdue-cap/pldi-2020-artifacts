@@ -75,7 +75,7 @@ def get_benchmarks():
             sys.exit(1)
         track = [os.path.relpath(s, options.benchmark_base) for s in paths]
         track = [s.split("/")[0] for s in track]
-        return [zip(paths, track)]
+        return list(zip(paths, track))
     benchmarks = []
     for t in options.tracks:
         if t == "INV":
