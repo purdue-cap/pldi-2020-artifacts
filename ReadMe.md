@@ -141,7 +141,7 @@ $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -b -j 4 \
     $HOME/benchmarks/INV/From 2018/<INV benchmark>.sl
 ```
 
-__Note__:
+__NOTE__:
 
 - By default, the run result is saved to `$HOME/result.json` and once a result is present the script won't run again, add `-f` or `--force` to override existing results.
 - If you wish to print stats of the accumulated results, you could use `-S` or `--stats_only` flag for that
