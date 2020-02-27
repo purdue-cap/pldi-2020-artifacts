@@ -53,7 +53,7 @@
 
 The main test facility would be the test script at `$HOME/run_benchmarks.py`, you could see its full help documentation by running `$HOME/run_benchmarks.py --help`:
 
-```bash
+```plaintext
 $ $HOME/run_benchmarks.py --help
 Usage: run_benchmarks.py [options]
 
