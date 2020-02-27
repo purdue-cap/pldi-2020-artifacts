@@ -69,7 +69,7 @@ if options.tracks == []:
 # Returns [(benchmark_path, benchmark_track)]
 def get_benchmarks():
     if options.list_benchmarks:
-        paths = map(os.path.abspath, args)
+        paths = list(map(os.path.abspath, args))
         if not all(s.startswith(options.benchmark_base) for s in paths):
             print("Supplied benchmark file must be in base directory")
             sys.exit(1)
@@ -212,7 +212,7 @@ def run_batch(solvers, benchmarks):
         (s, b, result) = result_pair
         if not s in db:
             db[s] = {}
-        db[s][b] = result.get()
+        db[s][b[0]] = result.get()
 
 def print_stats():
     for s in db:
@@ -240,8 +240,10 @@ def main():
             db = json.load(f)
     if not options.stats_only:
         benchmarks = get_benchmarks()
+        print(f"Running solvers: {options.solvers} on {len(benchmarks)} benchmark(s)")
         run_batch(options.solvers, benchmarks)
         with open(options.database, "w") as f:
+            print(f"Writing to {options.database}")
             json.dump(db, f, indent=2)
     print_stats()
 
