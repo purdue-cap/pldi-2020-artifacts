@@ -214,13 +214,16 @@ def run_batch(solvers, benchmarks):
             db[s] = {}
         db[s][b[0]] = result.get()
 
-def print_stats():
+def print_stats(benchmarks=None):
     for s in db:
         done = 0
         timeout = 0
         nonzero = 0
         no_output = 0
+        total = len(db[s])
         for b in db[s]:
+            if not benchmarks is None and not b in benchmarks:
+                continue
             if db[s][b] == "DONE":
                 done += 1
             elif db[s][b] == "TIMEOUT":
@@ -229,7 +232,7 @@ def print_stats():
                 nonzero += 1
             elif db[s][b] == "NO_OUTPUT":
                 no_output += 1
-        print(f"Solver {s:>10}:DONE {done:>3}, TIMEOUT {timeout:>3}, NONZERO {nonzero:>3}, NO_OUTPUT {no_output:>3}")
+        print(f"Solver {s:10} TOTAL {total:>3}:DONE {done:>3}, TIMEOUT {timeout:>3}, NONZERO {nonzero:>3}, NO_OUTPUT {no_output:>3}")
 
 
 def main():
@@ -245,7 +248,9 @@ def main():
         with open(options.database, "w") as f:
             print(f"Writing to {options.database}")
             json.dump(db, f, indent=2)
-    print_stats()
+        print_stats(set(b[0] for b in benchmarks))
+    else:
+        print_stats()
 
 if __name__ == "__main__":
     main()
