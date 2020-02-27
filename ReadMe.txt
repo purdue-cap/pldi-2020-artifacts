@@ -9,7 +9,7 @@
     md5sum dryadsynth.tar.xz
     ```
 
-    - MD5: `` __TODO:MD5 here__
+    - MD5: `a950a41f63683437c1259a5422436624`
 3. Then decompress and load the image into your local docker
 
     ```bash
