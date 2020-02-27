@@ -131,6 +131,16 @@ If you want to run `CLIA` and `General` track benchmarks on `DryadSynth` and `CV
 $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -t CLIA -t General -j 4
 ```
 
+Or you could use `-b` or `--list_benchmarks` to specify benchmark files to run in the script arguments, like this:
+
+```bash
+$HOME/run_benchmarks.py -s dryadsynth -s cvc4 -b -j 4 \
+    $HOME/benchmarks/CLIA/<CLIA benchmark1>.sl \
+    $HOME/benchmarks/CLIA/<CLIA benchmark2>.sl \
+    $HOME/benchmarks/General/<General benchmark>.sl \
+    $HOME/benchmarks/INV/From 2018/<INV benchmark>.sl
+```
+
 __Note__:
 
 - By default, the run result is saved to `$HOME/result.json` and once a result is present the script won't run again, add `-f` or `--force` to override existing results.
@@ -153,18 +163,39 @@ __TODO: Check against paper and make sure this part is correct__
     $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -s eusolver -t CLIA -t General -j <n>
     ```
 
-    - Use a proper `n` according to your system performance, usually something between `2` and `6` is preferred
+    - Use a proper `n` according to your system performance, usually something between `2` and `6` is preferred, or use the number of CPU cores on your system
 3. Run `INV` track on `DryadSynth`, `CVC4` and `LoopInvGen`
 
     ```bash
     $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -s loopinvgen -t INV -j <n>
     ```
 
+    - Step 2 and Step 3 may take long time (several hours) to finish, and you may:
+        - Use `-v` or `--verbose` flag to monitor the progress
+        - Split the steps into smaller fragments as demonstrated in the previous section
+        - Use `-T` or `--timeout` to specify a shorter timeout. __Note that this may impact the performance stats greatly, but may still flag significant performance differences__
+
 4. Inspect accumulated stats
 
     ```bash
     $HOME/run_benchmarks.py -S
     ```
+
+    - Stats would be printed after each run as well
+    - Stats fields
+        - `TOTAL`: total number of benchmarks run
+        - `DONE`: solved benchmarks
+        - `NONZERO`: benchmarks that the solver returned a non-zero return code, indicating a solver failure
+        - `NO_OUTPUT`: benchmarks that the solver produced no output, indicating a solver failure
+        - `TIMEOUT`: benchmarks that the solver has timed out
+        - `TOTAL_TIME`: total per-job time used
+        - `DONE_TIME`: total per-job time used on solved benchmarks
+
+__NOTE__:
+
+- Since the data in the paper is from StarExec, which have far more computing resources then most artifact evaluation environments, the absolute performance numbers may be very different
+- However, we expect relative performance relationships to remain the similar.
+- Depending on the performance of the evaluation environment, some benchmarks may not have enough time to finish within the default timeout, resulting in different performance numbers, this could be resolved by tuning `-T`/`--timeout` flag
 
 ### File structure in artifact image
 
@@ -177,15 +208,22 @@ Under `$HOME/`:
 - `benchmarks/` directory of all benchmarks as mentioned in paper
 - `run_benchmarks.py` test script
 
+`cvc4` executable is in `/usr/local/bin`
+
+`z3` executable (For `DryadSynth` constraint solving) is in `/usr/local/bin`
+
 If you wish to run any solver manually, here are a list of entry points:
 
-- `DryadSynth`: `$HOME/DryadSynth/exec.sh [OPTIONS] <BENCHMARK>`
-- `CVC4`:
+- `DryadSynth`
+    - `$HOME/DryadSynth/exec.sh [OPTIONS] <BENCHMARK>`
+- `CVC4`
     - `$HOME/CVC4/cvc4_CLIA [OPTIONS] <BENCHMARK>` for `CLIA` track
     - `$HOME/CVC4/cvc4_INV [OPTIONS] <BENCHMARK>` for `INV` track
     - `$HOME/CVC4/cvc4_GENERAL [OPTIONS] <BENCHMARK>` for `General` track
-- `EUSolver`: `$HOME/EUSolver/bin/eusolver.sh [OPTIONS] <BENCHMARK>`
-- `LoopInvGen`: `$HOME/LoopInvGen/bin/loopinvgen.sh [OPTIONS] <BENCHMARK>` 
+- `EUSolver`
+    - `$HOME/EUSolver/bin/eusolver.sh [OPTIONS] <BENCHMARK>`
+- `LoopInvGen`
+    - `$HOME/LoopInvGen/bin/loopinvgen.sh [OPTIONS] <BENCHMARK>` 
 
 ## Supported Claims
 
