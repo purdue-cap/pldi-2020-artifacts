@@ -95,6 +95,34 @@ def get_benchmarks():
     return benchmarks
 
 # returns result = one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT")
+def run_subprocess(args, solver_to_report, path_to_report):
+    try:
+        result = subprocess.Popen(args,
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result.communicate(timeout=options.timeout)
+    except subprocess.TimeoutExpired:
+        result.terminate()
+        try:
+            result.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            result.kill()
+        if options.verbose:
+            print(f"TIMEOUT: {solver_to_report} on {path_to_report}")
+        return "TIMEOUT"
+    if result.returncode != 0:
+        if options.verbose:
+            print(f"NONZERO: {solver_to_report} on {path_to_report}")
+        return "NONZERO"
+    if not result.stdout.strip():
+        if options.verbose:
+            print(f"NO_OUTPUT: {solver_to_report} on {path_to_report}")
+        return "NO_OUTPUT"
+
+    if options.verbose:
+        print(f"DONE: {solver_to_report} on {path_to_report}")
+    return "DONE"
+
+# returns result = one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT")
 def run_dryadsynth(benchmark):
     (path, track) = benchmark
     if options.verbose:
@@ -106,25 +134,8 @@ def run_dryadsynth(benchmark):
     else:
         flags = ["-t", "4", "-f", "20", "-i", "30"]
 
-    try:
-        result = subprocess.run([options.dryadsynth] + flags + [path],
-                                capture_output=True, timeout=options.timeout)
-    except subprocess.TimeoutExpired:
-        if options.verbose:
-            print(f"TIMEOUT: dryadsynth on {path}")
-        return "TIMEOUT"
-    if result.returncode != 0:
-        if options.verbose:
-            print(f"NONZERO: dryadsynth on {path}")
-        return "NONZERO"
-    if not result.stdout.strip():
-        if options.verbose:
-            print(f"NO_OUTPUT: dryadsynth on {path}")
-        return "NO_OUTPUT"
+    return run_subprocess([options.dryadsynth] + flags + [path], "dryadsynth", path)
 
-    if options.verbose:
-        print(f"DONE: dryadsynth on {path}")
-    return "DONE"
 
 def run_cvc4(benchmark):
     (path, track) = benchmark
@@ -137,25 +148,7 @@ def run_cvc4(benchmark):
     else:
         cmd = options.cvc4_GENERAL
 
-    try:
-        result = subprocess.run([cmd, path],
-                                capture_output=True, timeout=options.timeout)
-    except subprocess.TimeoutExpired:
-        if options.verbose:
-            print(f"TIMEOUT: cvc4 on {path}")
-        return "TIMEOUT"
-    if result.returncode != 0:
-        if options.verbose:
-            print(f"NONZERO: cvc4 on {path}")
-        return "NONZERO"
-    if not result.stdout.strip():
-        if options.verbose:
-            print(f"NO_OUTPUT: cvc4 on {path}")
-        return "NO_OUTPUT"
-
-    if options.verbose:
-        print(f"DONE: cvc4 on {path}")
-    return "DONE"
+    return run_subprocess([cmd, path], "cvc4", path)
 
 # returns result = one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT")
 def run_others(solver, benchmark):
@@ -164,25 +157,7 @@ def run_others(solver, benchmark):
         print(f"Running {solver} on {path}")
     cmd = getattr(options, solver)
 
-    try:
-        result = subprocess.run([cmd, path],
-                                capture_output=True, timeout=options.timeout)
-    except subprocess.TimeoutExpired:
-        if options.verbose:
-            print(f"TIMEOUT: {solver} on {path}")
-        return "TIMEOUT"
-    if result.returncode != 0:
-        if options.verbose:
-            print(f"NONZERO: {solver} on {path}")
-        return "NONZERO"
-    if not result.stdout.strip():
-        if options.verbose:
-            print(f"NO_OUTPUT: {solver} on {path}")
-        return "NO_OUTPUT"
-
-    if options.verbose:
-        print(f"DONE: {solver} on {path}")
-    return "DONE"
+    return run_subprocess([cmd, path], solver, path)
 
 db = {}
 def has_it_in_db(solver, benchmark):
