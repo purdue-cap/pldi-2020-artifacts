@@ -229,7 +229,7 @@ def print_stats():
                 nonzero += 1
             elif db[s][b] == "NO_OUTPUT":
                 no_output += 1
-        print(f"Solver {s}:\t\t DONE {done},\t TIMEOUT {timeout},\t NONZERO {nonzero},\t NO_OUTPUT {no_output}")
+        print(f"Solver {s:>10}:DONE {done:>3}, TIMEOUT {timeout:>3}, NONZERO {nonzero:>3}, NO_OUTPUT {no_output:>3}")
 
 
 def main():
