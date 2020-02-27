@@ -8,7 +8,7 @@ apt upgrade -y
 # Install dependencies
 apt install -y sudo openjdk-11-jdk git build-essential \
  python cmake wget libgmp-dev curl \
- rsync mercurial m4 unzip darcs
+ rsync mercurial m4 unzip darcs python3
 
 # Setup normal user
 useradd -m user -G sudo -s /bin/bash
