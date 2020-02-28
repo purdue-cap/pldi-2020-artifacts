@@ -104,7 +104,7 @@ def run_subprocess(args, solver_to_report, path_to_report):
             pass
         # At his point it needs to be cleaned up anyway
         try:
-            os.killpg(pgid, signal.SIGTERM)
+            os.killpg(pgid, signal.SIGKILL)
         except ProcessLookupError:
             pass
         if options.verbose:
@@ -113,7 +113,7 @@ def run_subprocess(args, solver_to_report, path_to_report):
     # Cleanup any children at this point
     if pgid != None:
         try:
-            os.killpg(pgid, signal.SIGTERM)
+            os.killpg(pgid, signal.SIGKILL)
         except ProcessLookupError:
             pass
     if result.returncode != 0:
