@@ -4,29 +4,16 @@ __NOTE__: Our solver is called **Grass** in the submission version of paper to s
 
 ## Getting Started
 
-1. To get started, you will need to install [docker](https://github.com/docker/docker-ce) on your system, and have [xz](https://tukaani.org/xz/) ready for decompressing the image file. Also you will need to have the artifact image file `dryadsynth.tar.xz`
-2. Before setting up the image, be sure to check its md5sum in case of any possible file corruption:
+1. To get started, you will need to install [docker](https://github.com/docker/docker-ce) on your system, and have [xz](https://tukaani.org/xz/) ready for decompressing the image file (These are probably already in your system software repository, be sure to check that). Also you will need to have the artifact docker image file `dryadsynth.tar.xz`, which is hosted [here](link to google drive) on Google drive. Please download it and put it in current directory.
+    - Besides installing docker, you need to give your local user the permission to run `docker` command, or you will have to prefix sudo in every docker-related commands below
+    - Alternatively you could manually build the image, see subsection _Manually Building Image_ for details
+2. Use the import script to check file integrity of the image file and import it to your local docker system:
 
-    ```bash
-    md5sum dryadsynth.tar.xz
-    ```
+   ```bash
+   ./import_image.sh
+   ```
 
-    - MD5: `a950a41f63683437c1259a5422436624`
-3. Then decompress and load the image into your local docker
-
-    ```bash
-    xz -d -c dryadsynth.tar.xz | docker load
-    ```
-
-    - If pipe `|` is not available on your system (i.e. `cmd` on Windows), do this separately:
-
-        ```bash
-        xz -d dryadsynth.tar.xz
-        docker load -i dryadsynth.tar
-        ```
-
-    - __TODO:Manual build instructions__
-4. The loaded image is named as `chaserhkj/dryadsynth`, run it as
+3. The loaded image is named as `chaserhkj/dryadsynth`, run it as
 
     ```bash
     docker run -it --name evaluation chaserhkj/dryadsynth
@@ -38,7 +25,7 @@ __NOTE__: Our solver is called **Grass** in the submission version of paper to s
     docker start -ia evaluation
     ```
 
-5. Once you are in, we could do some basic testings to ensure everything works. For example we could use our test script to run `DryadSynth` on all `CLIA` benchmarks
+4. Once you are in, we could do some basic testings to ensure everything works. For example we could use our test script to run `DryadSynth` on all `CLIA` benchmarks
 
     ```bash
     $ $HOME/run_benchmarks.py -j 4 -t CLIA
@@ -48,6 +35,10 @@ __NOTE__: Our solver is called **Grass** in the submission version of paper to s
     ```
 
     It should not take more than a few minutes to finish these. Once you see something like above, it's a good sign of image running well.
+
+### Manually Building Image
+
+This section is the alternative manual setup descriptions, skip if you have downloaded the image.
 
 ## File structure in artifact image
 
