@@ -92,30 +92,24 @@ def run_subprocess(args, solver_to_report, path_to_report):
         result = subprocess.Popen(args, start_new_session=True,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
-            pgid = os.getpgid(result.pid)
+            sid = os.getsid(result.pid)
         except ProcessLookupError:
-            pgid = None
+            sid = None
         (stdout, _) = result.communicate(timeout=options.timeout)
     except subprocess.TimeoutExpired:
-        os.killpg(pgid, signal.SIGTERM)
+        subprocess.run(["pkill", "-s", str(sid)])
         try:
             result.communicate(timeout=5)
         except subprocess.TimeoutExpired:
             pass
         # At his point it needs to be cleaned up anyway
-        try:
-            os.killpg(pgid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+        subprocess.run(["pkill", "-s", str(sid), "-KILL"])
         if options.verbose:
             print(f"TIMEOUT: {solver_to_report} on {path_to_report}")
         return ("TIMEOUT", time() - start_time)
     # Cleanup any children at this point
-    if pgid != None:
-        try:
-            os.killpg(pgid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+    if sid != None:
+        subprocess.run(["pkill", "-s", str(sid), "-KILL"])
     if result.returncode != 0:
         if options.verbose:
             print(f"NONZERO: {solver_to_report} on {path_to_report}")
