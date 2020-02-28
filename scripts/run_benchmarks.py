@@ -242,7 +242,10 @@ def main():
     if not options.stats_only:
         benchmarks = get_benchmarks()
         print(f"Running solvers: {options.solvers} on {len(benchmarks)} benchmark(s)")
-        run_batch(options.solvers, benchmarks)
+        try:
+            run_batch(options.solvers, benchmarks)
+        except KeyboardInterrupt:
+            print("Exiting prematurely, saving all current results...")
         with open(options.database, "w") as f:
             print(f"Writing to {options.database}")
             json.dump(db, f, indent=2)
