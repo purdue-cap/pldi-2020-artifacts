@@ -91,7 +91,7 @@ Options:
   -h, --help            show this help message and exit
   -s SOLVERS, --solver=SOLVERS
                         Solver to run, could be repeated to specify multiple,
-                        if omitted, would only run DryadSynth
+                        if omitted, all would be run
   -t TRACKS, --track=TRACKS
                         Track of benchmark to be run, could be repeated to
                         specify multiple, if omitted, all would be run
@@ -103,7 +103,7 @@ Options:
                         would read arguments as list of benchmark files to
                         run, default: False
   -T TIMEOUT, --timeout=TIMEOUT
-                        Timeout for running solvers, in seconds, default: 3600
+                        Timeout for running solvers, in seconds, default: 1800
   -j JOBS, --jobs=JOBS  Number of jobs to be run in parallel. NOTE: If you
                         want to use this, you need to configure enclosing
                         container to provide sufficient CPU cores or it won't
@@ -134,7 +134,6 @@ Options:
   --eusolver_entrypoint=EUSOLVER
                         Entrypoint to EUSolver run script, default:
                         /home/user/EUSolver/bin/eusolver.sh
-
 ```
 
 Available Solvers are `dryadsynth, cvc4, loopinvgen, eusolver`
@@ -234,10 +233,10 @@ __NOTE__:
 - Since experiments reported in the paper were originally conducted on the StarExec platform, which have far more computing resources then most artifact evaluation environments, the absolute performance numbers may be very different. (Details can be found in Unsupported Claims.) However, we expect relative performance relationships to remain the similar.
 - It may take hours (potentially 30+) to finish running the experiments. Using `-T`/`--timeout` to specify a shorter timeout may help, however, ***this may impact the performance stats greatly***.
 
-To reproduce results that support the following claims, fisrt run every solver (DryadSynth, CVC4, EUSolver, LoopInvGen) on benchmarks in all the tracks (CLIA, INV, General)
+To reproduce results that support the following claims, first run every solver (DryadSynth, CVC4, EUSolver, LoopInvGen) on benchmarks in all the tracks (CLIA, INV, General) with a proper `n`:
 
 ```bash
-$HOME/run_benchmarks.py -runAll
+$HOME/run_benchmarks.py -j <n>
 ```
 
 1. DryadSynth solved more benchmarks than all other solvers in all tracks.
@@ -245,34 +244,34 @@ $HOME/run_benchmarks.py -runAll
     - Inspect the stats by track
 
     ```bash
-    $HOME/get_solved.py -track=CLIA
+    $HOME/analyze_stats.py --stats=solved --track=CLIA
     ```
 
-    - `-track` can be `CLIA`/`INV`/`GENERAL`
+    - `--track` can be `CLIA`/`INV`/`General`
     - Stats for corresponding track would be printed
     - Stats fields
-        - `Track`: track that the benchmarks are in
-        - `DryadSynth`: total number of benchmarks solved by DryadSynth
-        - `CVC4`: total number of benchmarks solved by CVC4
-        - `EUSolver`: total number of benchmarks solved by EUSolver
-        - `LoopInvGen`: total number of benchmarks solved by LoopInvGen, would only appear if inspecting stats of INV track
+        - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
+        - `dryadsynth`: total number of benchmarks solved by DryadSynth
+        - `cvc4`: total number of benchmarks solved by CVC4
+        - `eusolver`: total number of benchmarks solved by EUSolver
+        - `loopinvgen`: total number of benchmarks solved by LoopInvGen, would only appear if inspecting stats of INV track
 
 2. DryadSynth *fastest* solved more benchmarks than all other solvers in all tracks.
 
     - Inspect the stats by track
 
     ```bash
-    $HOME/get_fastest.py -track=CLIA
+    $HOME/analyze_stats.py --stats=fastest --track=CLIA
     ```
 
-    - `-track` can be `CLIA`/`INV`/`GENERAL`
+    - `--track` can be `CLIA`/`INV`/`General`
     - Stats for corresponding track would be printed
     - Stats fields
-        - `Track`: track that the benchmarks are in
-        - `DryadSynth`: total number of benchmarks *fastest* solved by DryadSynth
-        - `CVC4`: total number of benchmarks *fastest* solved by CVC4
-        - `EUSolver`: total number of benchmarks *fastest* solved by EUSolver
-        - `LoopInvGen`: total number of benchmarks *fastest* solved by LoopInvGen, would only appear if inspecting stats of INV track
+        - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
+        - `dryadsynth`: total number of benchmarks *fastest* solved by DryadSynth
+        - `cvc4`: total number of benchmarks *fastest* solved by CVC4
+        - `eusolver`: total number of benchmarks *fastest* solved by EUSolver
+        - `loopinvgen`: total number of benchmarks *fastest* solved by LoopInvGen, would only appear if inspecting stats of INV track
 
     __NOTE__: Following the criterion of SyGuS competition, the time amounts are classified into buckets of pseudo-logarithmic scales: [0, 1), [1, 3), [3, 10), . . . , [1000, 1800). We identify a solver to fastest solve a benchmark if solving time of the solver falls into the smallest bucket among all other solvers. Hence, the number of solver that fastest solve a benchmark can be more than one. For example, if solver A solves a benchmark in 1.5 seconds and another solver B solve the benchmark in 2.5 seconds, we consider both A and B fastest solve the benchmark.
 
@@ -281,39 +280,39 @@ $HOME/run_benchmarks.py -runAll
     - Inspect the stats by track
 
     ```bash
-    $HOME/get_total.py -track=CLIA
+    $HOME/analyze_stats.py --stats=total --track=CLIA
     ```
 
-    - `-track` can be `CLIA`/`INV`/`GENERAL`
+    - `--track` can be `CLIA`/`INV`/`General`
     - Stats for corresponding track would be printed
     - Stats fields
-        - `Track`: track that the benchmarks are in
-        - `DryadSynth_Solved`: total number of benchmarks solved by DryadSynth
-        - `DryadSynth_Total`: total solving time used by DryadSynth
-        - `CVC4_Solved`: total number of benchmarks solved by CVC4
-        - `CVC4_Total`: total solving time used by CVC4
-        - `EUSolver_Solved`: total number of benchmarks solved by EUSolver
-        - `EUSolver_Total`: total solving time used by EUSolver
-        - `LoopInvGen_Solved`: total number of benchmarks solved by LoopInvGen, would only appear if inspecting stats of INV track
-        - `LoopInvGen_Total`: total solving time used by LoopInvGen, would only appear if inspecting stats of INV tract
+        - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
+        - `dryadsynth_solved`: total number of benchmarks solved by DryadSynth
+        - `dryadsynth_total`: total solving time used by DryadSynth
+        - `cvc4_solved`: total number of benchmarks solved by CVC4
+        - `cvc4_total`: total solving time used by CVC4
+        - `eusolver_solved`: total number of benchmarks solved by EUSolver
+        - `eusolver_total`: total solving time used by EUSolver
+        - `loopinvgen_solved`: total number of benchmarks solved by LoopInvGen, would only appear if inspecting stats of INV track
+        - `loopinvgen_total`: total solving time used by LoopInvGen, would only appear if inspecting stats of INV tract
 
 4. DryadSynth had a constant overhead on easier-to-solve problems (benchmarks that takes less time to solve), the solving time increases more mildly toward more challenging benchmarks (benchmarks that takes less time to solve) than other solvers. In other words, DryadSynth solved more benchmarks as the solving time increasing.
 
     - Inspect the stats by track
 
     ```bash
-    $HOME/get_solved_under_threshold.py -track=CLIA -threshold=THRESHOLD
+    $HOME/analyze_stats.py --stats=threshold --threshold=THRESHOLD --track=CLIA
     ```
 
-    - `-track` can be `CLIA`/`INV`/`GENERAL`
-    - `-threshold` should be a timing threshold in seconds
+    - `--track` can be `CLIA`/`INV`/`General`
+    - `--threshold` should be a timing threshold in seconds
     - Stats for corresponding track and threshold would be printed
     - Stats fields
-        - `Track`: track that the benchmarks are in
-        - `DryadSynth`: total number of benchmarks solved by DryadSynth under the timing threshold
-        - `CVC4`: total number of benchmarks solved by CVC4 under the timing threshold
-        - `EUSolver`: total number of benchmarks solved by EUSolver under the timing threshold
-        - `LoopInvGen`: total number of benchmarks solved by LoopInvGen under the timing threshold, would only appear if inspecting stats of INV track
+        - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
+        - `dryadsynth`: total number of benchmarks solved by DryadSynth under the timing threshold
+        - `cvc4`: total number of benchmarks solved by CVC4 under the timing threshold
+        - `eusolver`: total number of benchmarks solved by EUSolver under the timing threshold
+        - `loopinvgen`: total number of benchmarks solved by LoopInvGen under the timing threshold, would only appear if inspecting stats of INV track
 
 5. DryadSynth solved several benchmarks *uniquely*.
 
