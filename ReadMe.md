@@ -297,9 +297,23 @@ $HOME/run_benchmarks.py -runAll
         - `LoopInvGen_Solved`: total number of benchmarks solved by LoopInvGen, would only appear if inspecting stats of INV track
         - `LoopInvGen_Total`: total solving time used by LoopInvGen, would only appear if inspecting stats of INV tract
 
-4. DryadSynth has better scalability than all other solvers.
+4. DryadSynth had a constant overhead on easier-to-solve problems (benchmarks that takes less time to solve), the solving time increases more mildly toward more challenging benchmarks (benchmarks that takes less time to solve) than other solvers. In other words, DryadSynth solved more benchmarks as the solving time increasing.
 
+    - Inspect the stats by track
 
+    ```bash
+    $HOME/get_solved_under_threshold.py -track=CLIA -threshold=THRESHOLD
+    ```
+
+    - `-track` can be `CLIA`/`INV`/`GENERAL`
+    - `-threshold` should be a timing threshold in seconds
+    - Stats for corresponding track and threshold would be printed
+    - Stats fields
+        - `Track`: track that the benchmarks are in
+        - `DryadSynth`: total number of benchmarks solved by DryadSynth under the timing threshold
+        - `CVC4`: total number of benchmarks solved by CVC4 under the timing threshold
+        - `EUSolver`: total number of benchmarks solved by EUSolver under the timing threshold
+        - `LoopInvGen`: total number of benchmarks solved by LoopInvGen under the timing threshold, would only appear if inspecting stats of INV track
 
 5. DryadSynth solved several benchmarks *uniquely*.
 
