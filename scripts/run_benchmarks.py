@@ -10,7 +10,7 @@ from time import time
 
 parser = OptionParser()
 parser.add_option("-s", "--solver", dest="solvers", action="append", choices=["dryadsynth", "loopinvgen", "cvc4", "eusolver"],
-                help="Solver to run, could be repeated to specify multiple, if omitted, would only run DryadSynth",
+                help="Solver to run, could be repeated to specify multiple, if omitted, all would be run",
                 default=[])
 parser.add_option("-t", "--track", dest="tracks", action="append", choices=["CLIA", "INV", "General"],
                 help="Track of benchmark to be run, could be repeated to specify multiple, if omitted, all would be run",
@@ -63,7 +63,7 @@ parser.add_option("--eusolver_entrypoint", dest="eusolver",
 
 (options, args) = parser.parse_args()
 if options.solvers == []:
-    options.solvers = ["dryadsynth"]
+    options.solvers = ["dryadsynth", "cvc4", "eusolver", "loopinvgen"]
 if options.tracks == []:
     options.tracks = ["CLIA", "INV", "General"]
 
