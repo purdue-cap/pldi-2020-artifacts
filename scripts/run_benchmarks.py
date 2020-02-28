@@ -23,7 +23,7 @@ parser.add_option("-b", "--list_benchmarks", dest="list_benchmarks", action="sto
                 default=False)
 parser.add_option("-T", "--timeout", dest="timeout", type="int",
                 help="Timeout for running solvers, in seconds, default: %default",
-                default=3600)
+                default=1800)
 parser.add_option("-j", "--jobs", dest="jobs", type="int",
                 help="Number of jobs to be run in parallel. "
                 "NOTE: If you want to use this, you need to configure "
