@@ -15,17 +15,20 @@ parser.add_option("-s", "--stats", dest="stats", action="append", choices=["solv
                 default=[])
 parser.add_option("-t", "--track", dest="tracks", action="append", choices=["CLIA", "INV", "General"],
                 help="Tracks selected to be displayed, could be repeated to specify multiple,"
-                " if omitted, all would be selected. Valid fields: CLIA, INV, General",
+                " if omitted, all would be selected. This option won't change unique stats. Valid fields: CLIA, INV, General",
                 default=[])
-parser.add_option("-T", "--threshold", dest="threshold", type="int",
+parser.add_option("-T", "--threshold", dest="threshold", type="float",
                 help="Threshold time in seconds, to display number of benchmarks solved under threshold time,"
                 " for stats type 'threshold', default: %default",
                 default=30)
 (options, args) = parser.parse_args()
 
-if options.default == []:
+if options.stats == []:
     print("No stats selected to display, use -s / --stats to select some, see --help for details")
     sys.exit(1)
+
+if options.tracks == []:
+    options.tracks = ["CLIA", "INV", "General"]
 
 db = {}
 benches = {}
@@ -117,13 +120,39 @@ def print_total(track):
                 stat[s][0] += 1
                 stat[s][1] += db[s][b][1]
 
-    print(f"Track: {track}, {len(benches[track])} benchmarks, solved stats")
+    print(f"Track: {track}, {len(benches[track])} benchmarks, total stats")
     for s in stat:
         if track != "INV" and s == "loopinvgen":
             continue
         print(f"{s:>10}_solved: {stat[s][0]:>10}" )
         print(f"{s:>11}_total: {stat[s][1]:>10.1f}" )
     
+def print_threshold(track):
+    stat = {"dryadsynth":0, "cvc4":0, "eusolver":0, "loopinvgen":0}
+    for s in db:
+        for b in db[s]:
+            if b in benches[track] and db[s][b][0] == "DONE":
+                if db[s][b][1] <= options.threshold:
+                    stat[s] += 1
+
+    print(f"Track: {track}, {len(benches[track])} benchmarks, threshold stats, threshold: {options.threshold} seconds")
+    for s in stat:
+        if track != "INV" and s == "loopinvgen":
+            continue
+        print(f"{s:>10}: {stat[s]:>3}" )
+
+def print_unique():
+    total_benchmarks = benches['INV'] | benches['CLIA'] | benches['General']
+    unique = 0
+
+    for b in total_benchmarks:
+        if db['dryadsynth'].get(b, None) == "DONE" and \
+            db['cvc4'].get(b, None) != "DONE" and \
+            db['eusolver'].get(b, None) != "DONE" and \
+            db['loopinvgen'].get(b, None) != "DONE":
+            unique += 1
+    print(f"dryadsynth_uniquely_solved: {unique}")
+
 def main():
     global db, benches
     if not os.path.exists(options.database):
@@ -133,6 +162,22 @@ def main():
         print(f"Loading from {options.database}")
         db = json.load(f)
     benches = collect_benchmarks()
+    for s in options.stats:
+        if s == "unique":
+            print("Stat: unique")
+            print("------------") 
+            print_unique()
+            print()
+            continue
+        for t in options.tracks:
+            heading = f"Stat: {s}"
+            print(s)
+            print("-"*len(heading))
+            globals().get(f"print_{s}")(t)
+            print()
+
+if __name__ == "__main__":
+    main()
 
 
 

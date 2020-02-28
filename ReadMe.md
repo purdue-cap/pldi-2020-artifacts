@@ -319,12 +319,12 @@ $HOME/run_benchmarks.py -j <n>
     - Inspect the stats
 
     ```bash
-    $HOME/get_unique.py
+    $HOME/analyze_stats.py --stats=unique
     ```
 
     - Stats would be printed
     - Stats fields
-        - `DryadSynth_Uniquely_Solved`: total number of benchmarks *uniquely* solved by DryadSynth
+        - `dryadsynth_uniquely_solved`: total number of benchmarks *uniquely* solved by DryadSynth
 
 ## Unsupported Claims
 
