@@ -117,7 +117,10 @@ def run_subprocess(args, solver_to_report, path_to_report):
         return ("TIMEOUT", time() - start_time)
     # Cleanup any children at this point
     if pgid != None:
-        os.killpg(pgid, signal.SIGTERM)
+        try:
+            os.killpg(pgid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
     if result.returncode != 0:
         if options.verbose:
             print(f"NONZERO: {solver_to_report} on {path_to_report}")
