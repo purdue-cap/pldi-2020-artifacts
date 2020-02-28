@@ -1,5 +1,7 @@
 # Artifacts for _Reconciling Enumerative and Deductive Program Synthesis_
 
+__NOTE__: Our solver is called **Grass** in the submission version of paper to stay anonymized. In this artifact, we will use the original name **DryadSynth** instead.
+
 ## Getting Started
 
 1. To get started, you will need to install [docker](https://github.com/docker/docker-ce) on your system, and have [xz](https://tukaani.org/xz/) ready for decompressing the image file. Also you will need to have the artifact image file `dryadsynth.tar.xz`
@@ -46,6 +48,34 @@
     ```
 
     It should not take more than a few minutes to finish these. Once you see something like above, it's a good sign of image running well.
+
+## File structure in artifact image
+
+Under `$HOME/`:
+
+- `CVC4/` scripts for running CVC4 in SyGuS mode
+- `DryadSynth/` source repository for `DryadSynth`
+- `EUSolver/` solver binary of `EUSolver` extracted from StarExec
+- `LoopInvGen/` solver binary of `LoopInvGen` extracted from StarExec
+- `benchmarks/` directory of all benchmarks as mentioned in paper
+- `run_benchmarks.py` test script
+
+`cvc4` executable is in `/usr/local/bin`
+
+`z3` executable (For `DryadSynth` constraint solving) is in `/usr/local/bin`
+
+If you wish to run any solver manually, here are a list of entry points:
+
+- `DryadSynth`
+    - `$HOME/DryadSynth/exec.sh [OPTIONS] <BENCHMARK>`
+- `CVC4`
+    - `$HOME/CVC4/cvc4_CLIA [OPTIONS] <BENCHMARK>` for `CLIA` track
+    - `$HOME/CVC4/cvc4_INV [OPTIONS] <BENCHMARK>` for `INV` track
+    - `$HOME/CVC4/cvc4_GENERAL [OPTIONS] <BENCHMARK>` for `General` track
+- `EUSolver`
+    - `$HOME/EUSolver/bin/eusolver.sh [OPTIONS] <BENCHMARK>`
+- `LoopInvGen`
+    - `$HOME/LoopInvGen/bin/loopinvgen.sh [OPTIONS] <BENCHMARK>` 
 
 ## Evaluations
 
@@ -197,38 +227,93 @@ __NOTE__:
 - However, we expect relative performance relationships to remain the similar.
 - Depending on the performance of the evaluation environment, some benchmarks may not have enough time to finish within the default timeout, resulting in different performance numbers, this could be resolved by tuning `-T`/`--timeout` flag
 
-### File structure in artifact image
-
-Under `$HOME/`:
-
-- `CVC4/` scripts for running CVC4 in SyGuS mode
-- `DryadSynth/` source repository for `DryadSynth`
-- `EUSolver/` solver binary of `EUSolver` extracted from StarExec
-- `LoopInvGen/` solver binary of `LoopInvGen` extracted from StarExec
-- `benchmarks/` directory of all benchmarks as mentioned in paper
-- `run_benchmarks.py` test script
-
-`cvc4` executable is in `/usr/local/bin`
-
-`z3` executable (For `DryadSynth` constraint solving) is in `/usr/local/bin`
-
-If you wish to run any solver manually, here are a list of entry points:
-
-- `DryadSynth`
-    - `$HOME/DryadSynth/exec.sh [OPTIONS] <BENCHMARK>`
-- `CVC4`
-    - `$HOME/CVC4/cvc4_CLIA [OPTIONS] <BENCHMARK>` for `CLIA` track
-    - `$HOME/CVC4/cvc4_INV [OPTIONS] <BENCHMARK>` for `INV` track
-    - `$HOME/CVC4/cvc4_GENERAL [OPTIONS] <BENCHMARK>` for `General` track
-- `EUSolver`
-    - `$HOME/EUSolver/bin/eusolver.sh [OPTIONS] <BENCHMARK>`
-- `LoopInvGen`
-    - `$HOME/LoopInvGen/bin/loopinvgen.sh [OPTIONS] <BENCHMARK>` 
-
 ## Supported Claims
 
 __TODO__
 
+__NOTE__: 
+
+- Since experiments reported in the paper were originally conducted on the StarExec platform, which have far more computing resources then most artifact evaluation environments, the absolute performance numbers may be very different. (Details can be found in Unsupported Claims.) However, we expect relative performance relationships to remain the similar.
+- It may take hours (potentially 30+) to finish running the experiments. Using `-T`/`--timeout` to specify a shorter timeout may help, however, ***this may impact the performance stats greatly***.
+
+To reproduce results that support the following claims, fisrt run every solver (DryadSynth, CVC4, EUSolver, LoopInvGen) on benchmarks in all the tracks (CLIA, INV, General)
+
+```bash
+$HOME/run_benchmarks.py -runAll
+```
+
+1. DryadSynth solved more benchmarks than all other solvers in all tracks.
+
+    - Inspect the stats by track
+
+    ```bash
+    $HOME/get_solved.py -track=CLIA
+    ```
+        - `-track` can be `CLIA`/`INV`/`GENERAL`
+        - Stats for corresponding track would be printed
+        - Stats fields
+            - `Track`: track that the benchmarks are in
+            - `DryadSynth`: total number of benchmarks solved by DryadSynth
+            - `CVC4`: total number of benchmarks solved by CVC4
+            - `EUSolver`: total number of benchmarks solved by EUSolver
+            - `LoopInvGen`: total number of benchmarks solved by LoopInvGen, would only appear if inspecting stats of INV track
+
+2. DryadSynth *fastest* solved more benchmarks than all other solvers in all tracks.
+
+    - Inspect the stats by track
+
+    ```bash
+    $HOME/get_fastest.py -track=CLIA
+    ```
+        - `-track` can be `CLIA`/`INV`/`GENERAL`
+        - Stats for corresponding track would be printed
+        - Stats fields
+            - `Track`: track that the benchmarks are in
+            - `DryadSynth`: total number of benchmarks *fastest* solved by DryadSynth
+            - `CVC4`: total number of benchmarks *fastest* solved by CVC4
+            - `EUSolver`: total number of benchmarks *fastest* solved by EUSolver
+            - `LoopInvGen`: total number of benchmarks *fastest* solved by LoopInvGen, would only appear if inspecting stats of INV track
+
+    __NOTE__: Following the criterion of SyGuS competition, the time amounts are classified into buckets of pseudo-logarithmic scales: [0, 1), [1, 3), [3, 10), . . . , [1000, 1800). We identify a solver to fastest solve a benchmark if solving time of the solver falls into the smallest bucket among all other solvers. Hence, the number of solver that fastest solve a benchmark can be more than one. For example, if solver A solves a benchmark in 1.5 seconds and another solver B solve the benchmark in 2.5 seconds, we consider both A and B fastest solve the benchmark.
+
+3. DryadSynth solved more CLIA and General track benchmarks than all other solvers, with less time spent.
+
+    - Inspect the stats by track
+
+    ```bash
+    $HOME/get_total.py -track=CLIA
+    ```
+        - `-track` can be `CLIA`/`INV`/`GENERAL`
+        - Stats for corresponding track would be printed
+        - Stats fields
+            - `Track`: track that the benchmarks are in
+            - `DryadSynth_Solved`: total number of benchmarks solved by DryadSynth
+            - `DryadSynth_Total`: total solving time used by DryadSynth
+            - `CVC4_Solved`: total number of benchmarks solved by CVC4
+            - `CVC4_Total`: total solving time used by CVC4
+            - `EUSolver_Solved`: total number of benchmarks solved by EUSolver
+            - `EUSolver_Total`: total solving time used by EUSolver
+            - `LoopInvGen_Solved`: total number of benchmarks solved by LoopInvGen, would only appear if inspecting stats of INV track
+            - `LoopInvGen_Total`: total solving time used by LoopInvGen, would only appear if inspecting stats of INV tract
+
+4. DryadSynth has better scalability than all other solvers.
+
+
+
+5. DryadSynth solved several benchmarks *uniquely*.
+
+    - Inspect the stats
+
+    ```bash
+    $HOME/get_unique.py
+    ```
+        - Stats would be printed
+        - Stats fields
+            - `DryadSynth_Uniquely_Solved`: total number of benchmarks *uniquely* solved by DryadSynth
+
 ## Unsupported Claims
 
 __TODO__
+
+- The experiments reported in the paper were originally conducted on the [StarExec](https://www.starexec.org/starexec/secure/index.jsp) platform, on which solver is executed on a 4-core, 2.4GHz CPU and 128GB memory node. The StarExec platform may have far more computing resources then most artifact evaluation environments, the absolute performance numbers may be very different from the data provided in the paper.
+- Depending on the performance of the evaluation environment, some benchmarks may not have enough time to finish within the default timeout, resulting in different performance numbers, this could be resolved by tuning `-T`/`--timeout` flag
