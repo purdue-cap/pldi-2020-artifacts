@@ -7,7 +7,7 @@ __NOTE__:
 
 ## Getting Started
 
-1. To get started, you will need to install [docker](https://github.com/docker/docker-ce) on your system, and have [xz](https://tukaani.org/xz/) ready for decompressing the image file (These are probably already in your system software repository, be sure to check that). Also you will need to have the artifact docker image file `dryadsynth.tar.xz`, which is hosted [here](https://drive.google.com/file/d/1y2N-fvrZPHn5CpXokwPbMGQqmq2IUA0L/view?usp=sharing) on Google drive. Please download it and put it in current directory.
+1. To get started, you will need to install [docker](https://github.com/docker/docker-ce) on your system, and have [xz](https://tukaani.org/xz/) ready for decompressing the image file (These are probably already in your system software repository, be sure to check that). Also you will need to have the artifact docker image file `dryadsynth.tar.xz`, which is hosted [here](https://drive.google.com/file/d/1fdvpCLmPXdqGGRqip-NMa60Nw6uxkOPj/view?usp=sharing) on Google drive. Please download it and put it in current directory.
     - Besides installing docker, you need to give your local user the permission to run `docker` command, or you will have to prefix sudo in every docker-related commands below
     - Alternatively you could manually build the image, see subsection _Manually Building Image_ below for details
 2. Use the import script to check file integrity of the image file and import it to your local docker system:
