@@ -20,7 +20,7 @@ parser.add_option("-t", "--track", dest="tracks", action="append", choices=["CLI
 parser.add_option("-T", "--threshold", dest="threshold", type="float",
                 help="Threshold time in seconds, to display number of benchmarks solved under threshold time,"
                 " for stats type 'threshold', default: %default",
-                default=30)
+                default=30.0)
 (options, args) = parser.parse_args()
 
 if options.stats == []:
@@ -56,7 +56,7 @@ def print_solved(track):
             if b in benches[track] and db[s][b][0] == "DONE":
                 stat[s] += 1
 
-    print(f"Track: {track}, {len(benches[track])} benchmarks, solved stats")
+    print(f"Track: {track}, {len(benches[track])} benchmarks")
     for s in stat:
         if track != "INV" and s == "loopinvgen":
             continue
@@ -106,7 +106,7 @@ def print_fastest(track):
             if fastest_time[b] != inf and fastest_time[b] == bucket_time[b][s]:
                 stat[s] += 1
 
-    print(f"Track: {track}, {len(benches[track])} benchmarks, fastest stats")
+    print(f"Track: {track}, {len(benches[track])} benchmarks")
     for s in stat:
         if track != "INV" and s == "loopinvgen":
             continue
@@ -120,7 +120,7 @@ def print_total(track):
                 stat[s][0] += 1
                 stat[s][1] += db[s][b][1]
 
-    print(f"Track: {track}, {len(benches[track])} benchmarks, total stats")
+    print(f"Track: {track}, {len(benches[track])} benchmarks")
     for s in stat:
         if track != "INV" and s == "loopinvgen":
             continue
@@ -135,7 +135,7 @@ def print_threshold(track):
                 if db[s][b][1] <= options.threshold:
                     stat[s] += 1
 
-    print(f"Track: {track}, {len(benches[track])} benchmarks, threshold stats, threshold: {options.threshold} seconds")
+    print(f"Track: {track}, {len(benches[track])} benchmarks, threshold: {options.threshold} seconds")
     for s in stat:
         if track != "INV" and s == "loopinvgen":
             continue
@@ -164,14 +164,14 @@ def main():
     benches = collect_benchmarks()
     for s in options.stats:
         if s == "unique":
-            print("Stat: unique")
-            print("------------") 
+            print("Stat - unique")
+            print("-------------") 
             print_unique()
             print()
             continue
         for t in options.tracks:
-            heading = f"Stat: {s}"
-            print(s)
+            heading = f"Stat - {s}"
+            print(heading)
             print("-"*len(heading))
             globals().get(f"print_{s}")(t)
             print()
