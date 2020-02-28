@@ -218,8 +218,8 @@ __TODO: Check against paper and make sure this part is correct__
         - `NONZERO`: benchmarks that the solver returned a non-zero return code, indicating a solver failure
         - `NO_OUTPUT`: benchmarks that the solver produced no output, indicating a solver failure
         - `TIMEOUT`: benchmarks that the solver has timed out
-        - `TOTAL_TIME`: total per-job time used
-        - `DONE_TIME`: total per-job time used on solved benchmarks
+        - `TOTAL_TIME`: total per-job time used, in seconds
+        - `DONE_TIME`: total per-job time used on solved benchmarks, in seconds
 
 __NOTE__:
 
