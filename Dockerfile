@@ -6,7 +6,7 @@ COPY ./cvc4_runscripts /home/user/CVC4
 RUN chown -R user /home/user/CVC4
 COPY ./loopinvgen-lib.zip /build
 COPY ./EUSolver-2018.zip /build
-COPY ./benchmarks.zip /build
+COPY ./benchmarks /build/benchmarks
 
 USER user
 RUN /scripts/build_z3.sh

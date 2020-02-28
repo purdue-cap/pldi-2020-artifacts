@@ -79,16 +79,6 @@ def get_benchmarks():
         return list(zip(paths, track))
     benchmarks = []
     for t in options.tracks:
-        if t == "INV":
-            base = os.path.join(options.benchmark_base, "INV/From 2018")
-            paths = [s for s in os.listdir(base) if s.endswith(".sl")]
-            paths = [os.path.join(base, s) for s in paths]
-            benchmarks.extend((s, t) for s in paths)
-            base = os.path.join(options.benchmark_base, "INV/XC")
-            paths = [s for s in os.listdir(base) if s.endswith(".sl")]
-            paths = [os.path.join(base, s) for s in paths]
-            benchmarks.extend((s, t) for s in paths)
-        else:
             base = os.path.join(options.benchmark_base, t)
             paths = [s for s in os.listdir(base) if s.endswith(".sl")]
             paths = [os.path.join(base, s) for s in paths]
