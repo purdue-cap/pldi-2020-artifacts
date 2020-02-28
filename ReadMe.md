@@ -4,6 +4,7 @@ __NOTE__:
 
 - Our solver is called **Grass** in the submission version of paper to stay anonymized. In this artifact, we will use the original name **DryadSynth** instead.
 - Source code of DryadSynth is included in the docker image (as linked below) but not in this package. You can go to our [github repo](https://github.com/purdue-cap/DryadSynth) if you want to start from scratch.
+- Content of this current package is also hosted in a [github repo](https://github.com/purdue-cap/pldi-2020-artifacts), you could do `git clone` from there to get this package as well
 
 ## Getting Started
 
