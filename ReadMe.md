@@ -1,12 +1,15 @@
 # Artifacts for _Reconciling Enumerative and Deductive Program Synthesis_
 
-__NOTE__: Our solver is called **Grass** in the submission version of paper to stay anonymized. In this artifact, we will use the original name **DryadSynth** instead.
+__NOTE__:
+
+- Our solver is called **Grass** in the submission version of paper to stay anonymized. In this artifact, we will use the original name **DryadSynth** instead.
+- Source code of DryadSynth is included in the docker image (as linked below) but not in this package. You can go to our [github repo](https://github.com/purdue-cap/DryadSynth) if you wish to see the code without downloading the image.
 
 ## Getting Started
 
 1. To get started, you will need to install [docker](https://github.com/docker/docker-ce) on your system, and have [xz](https://tukaani.org/xz/) ready for decompressing the image file (These are probably already in your system software repository, be sure to check that). Also you will need to have the artifact docker image file `dryadsynth.tar.xz`, which is hosted [here](link to google drive) on Google drive. Please download it and put it in current directory.
     - Besides installing docker, you need to give your local user the permission to run `docker` command, or you will have to prefix sudo in every docker-related commands below
-    - Alternatively you could manually build the image, see subsection _Manually Building Image_ for details
+    - Alternatively you could manually build the image, see subsection _Manually Building Image_ below for details
 2. Use the import script to check file integrity of the image file and import it to your local docker system:
 
    ```bash
@@ -39,6 +42,23 @@ __NOTE__: Our solver is called **Grass** in the submission version of paper to s
 ### Manually Building Image
 
 This section is the alternative manual setup descriptions, skip if you have downloaded the image.
+
+1. First you need to download the [external solvers](https://drive.google.com/file/d/11_FnIIcKwUMGcIH3yyRWwWoON6vyC8U8/view?usp=sharing), these are other solvers we have compared against in our paper and need to be distributed separately. Put the `external.zip` in this directory and then verify and unzip it:
+
+    ```bash
+    md5sum -c external.zip.md5
+    unzip external.zip
+    ```
+
+2. Run the docker build script to build the docker image:
+
+    ```bash
+    docker build -t chaserhkj/dryadsynth .
+    ```
+
+    It should take around 20-30 minutes to finish, depending on your network and computing performance.
+
+3. Now the built image is in your local docker system, follow step 3, 4 in the _Getting Started_ section above
 
 ## File structure in artifact image
 
@@ -129,7 +149,7 @@ Options:
 
 Available Solvers are `dryadsynth, cvc4, loopinvgen, eusolver`
 
-Avaiable tracks are `CLIA, INV, General`
+Available tracks are `CLIA, INV, General`
 
 Most of the flags are more configurable behavior and you could just use the default version.
 
@@ -191,6 +211,7 @@ __NOTE__:
     - Step 2 and Step 3 may take long time (several hours) to finish, and you may:
         - Use `-v` or `--verbose` flag to monitor the progress
         - Split the steps into smaller fragments as demonstrated in the previous section
+        - `Ctrl-C` any time to stop prematurely, the script will try to save all current collected data so that next time you can start from there.
         - Use `-T` or `--timeout` to specify a shorter timeout. __Note that this may impact the performance stats greatly, but may still flag significant performance differences__
 
 4. Inspect accumulated stats
