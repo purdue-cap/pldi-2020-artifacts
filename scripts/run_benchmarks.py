@@ -193,9 +193,13 @@ def run_batch(solvers, benchmarks):
     try:
         pool.join()
     except KeyboardInterrupt:
-        print("Exiting prematurely, saving all current results...")
+        print("Exiting prematurely, waiting for last round results...")
+        print("Ctrl-C again to force quit")
         pool.terminate()
-        pool.join()
+        try:
+            pool.join()
+        except KeyboardInterrupt:
+            print("Force quitting... Solver processes may be orphaned")
     for result_pair in result_pool:
         (s, b, result) = result_pair
         if not s in db:
