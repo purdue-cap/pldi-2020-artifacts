@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, sys
+import os, sys, signal
 import json
 import subprocess
 from optparse import OptionParser
@@ -99,18 +99,20 @@ def get_benchmarks():
 def run_subprocess(args, solver_to_report, path_to_report):
     start_time = time()
     try:
-        result = subprocess.Popen(args,
+        result = subprocess.Popen(args, start_new_session=True,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, _) = result.communicate(timeout=options.timeout)
     except subprocess.TimeoutExpired:
-        result.terminate()
+        os.killpg(os.getpgid(result.pid), signal.SIGTERM)
         try:
             result.communicate(timeout=5)
         except subprocess.TimeoutExpired:
-            result.kill()
+            os.killpg(os.getpgid(result.pid), signal.SIGKILL)
         if options.verbose:
             print(f"TIMEOUT: {solver_to_report} on {path_to_report}")
         return ("TIMEOUT", time() - start_time)
+    # Cleanup any children at this point
+    os.killpg(os.getpgid(result.pid), signal.SIGTERM)
     if result.returncode != 0:
         if options.verbose:
             print(f"NONZERO: {solver_to_report} on {path_to_report}")
