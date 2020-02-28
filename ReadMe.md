@@ -3,7 +3,7 @@
 __NOTE__:
 
 - Our solver is called **Grass** in the submission version of paper to stay anonymized. In this artifact, we will use the original name **DryadSynth** instead.
-- Source code of DryadSynth is included in the docker image (as linked below) but not in this package. You can go to our [github repo](https://github.com/purdue-cap/DryadSynth) if you wish to see the code without downloading the image.
+- Source code of DryadSynth is included in the docker image (as linked below) but not in this package. You can go to our [github repo](https://github.com/purdue-cap/DryadSynth) if you want to start from scratch.
 
 ## Getting Started
 
@@ -16,6 +16,8 @@ __NOTE__:
    ./import_image.sh
    ```
 
+   The importing process should not take more than a few minutes.
+
 3. The loaded image is named as `chaserhkj/dryadsynth`, run it as
 
     ```bash
@@ -27,6 +29,14 @@ __NOTE__:
     ```bash
     docker start -ia evaluation
     ```
+
+    - __Optional:__ If you have abundant computing resources, i.e. running the image on a large server, since by default docker uses as much resource as its host may provide, you may want to limit resource uses of the running container. You can do this by supplying some extra options when executing `docker run`. For example to limit the container to use 4 cores and 128 GB memory:
+
+        ```bash
+        docker run -it --name evaluation --memory 128g --cpus 4 chaserhkj/dryadsynth
+        ```
+
+        See _Unsupported Claims_ section below for more details about the original experiment environment
 
 4. Once you are in, we could do some basic testings to ensure everything works. For example we could use our test script to run `DryadSynth` on all `CLIA` benchmarks
 
@@ -69,7 +79,12 @@ Under `$HOME/`:
 - `EUSolver/` solver binary of `EUSolver` extracted from StarExec
 - `LoopInvGen/` solver binary of `LoopInvGen` extracted from StarExec
 - `benchmarks/` directory of all benchmarks as mentioned in paper
+    - `benchmarks/CLIA` Conditional Linear Integer Arithmetics Track
+    - `benchmarks/INV` Invariant Synthesis Track
+    - `benchmarks/General` General SyGuS Track
 - `run_benchmarks.py` test script
+- `analyze_stats.py` stats analysis script
+- `results.json` stored test results, it is not present at the beginning but should be generated after running test scripts
 
 `cvc4` executable is in `/usr/local/bin`
 
@@ -195,26 +210,42 @@ __NOTE__:
    rm -f $HOME/result.json
    ```
 
-2. Run `CLIA` and `General` track on `DryadSynth`, `CVC4` and `EUSolver`
+2. Determine parameters, there are 2 parameters need to be determined:
+
+    - `JOBS`: number of jobs to be run in parallel
+        - This number need to be determined according to your system performance and the resource limitation you may have placed on the running container
+        - If the number is higher than the CPU cores available in container, it may actually slow down the solvers due to scheduling, impacting performance numbers
+        - A rule of thumb is just to use the number of CPU cores available
+    - `TIMEOUT`: time in seconds before solvers would be killed and considered as timed out
+        - This parameter would impact both the total time needed to run the tests and the final performance numbers
+        - Default value is 1800, which is the same as reported in paper when running on StarExec. However using this number would take a long time to finish all the benchmarks, potentially 30+ hrs. See _Unsupported Claims_ section for more details about StarExec
+        - Setting the value lower would help running the test faster. For example with `JOBS=4, TIMEOUT=10` a full run could be finished in around one hour. But a lower `TIMEOUT` would result in solver killed too early, impacting performance numbers
+        - With fewer computing resources, solvers might be slower, resulting in different performance numbers, raising `TIMEOUT` in these cases might help.
+
+3. Run `CLIA` and `General` track on `DryadSynth`, `CVC4` and `EUSolver`
 
     ```bash
-    $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -s eusolver -t CLIA -t General -j <n>
+    $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -s eusolver -t CLIA -t General -j JOBS -T TIMEOUT
     ```
 
-    - Use a proper `n` according to your system performance, usually something between `2` and `6` is preferred, or use the number of CPU cores on your system
-3. Run `INV` track on `DryadSynth`, `CVC4` and `LoopInvGen`
+4. Run `INV` track on `DryadSynth`, `CVC4`, `EUSolver` and `LoopInvGen`
 
     ```bash
-    $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -s loopinvgen -t INV -j <n>
+    $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -s eusolver -s loopinvgen -t INV -j JOBS -T TIMEOUT
     ```
 
-    - Step 2 and Step 3 may take long time (several hours) to finish, and you may:
+    - As mentioned in Step 2, Step 3 and 4 may take long time to finish, and you may:
+        - Tweak parameters as described in Step 2 to help speed up
         - Use `-v` or `--verbose` flag to monitor the progress
         - Split the steps into smaller fragments as demonstrated in the previous section
         - `Ctrl-C` any time to stop prematurely, the script will try to save all current collected data so that next time you can start from there.
-        - Use `-T` or `--timeout` to specify a shorter timeout. __Note that this may impact the performance stats greatly, but may still flag significant performance differences__
+    - For Step 3 and 4, alternatively you could use one command to run all the benchmarks on all solvers:
 
-4. Inspect accumulated stats
+        ```bash
+        $HOME/run_benchmarks.py -j JOBS -T TIMEOUT
+        ```
+
+5. Inspect accumulated stats
 
     ```bash
     $HOME/run_benchmarks.py -S
@@ -230,34 +261,22 @@ __NOTE__:
         - `TOTAL_TIME`: total per-job time used, in seconds
         - `DONE_TIME`: total per-job time used on solved benchmarks, in seconds
 
-__NOTE__:
-
-- Since the data in the paper is from StarExec, which have far more computing resources then most artifact evaluation environments, the absolute performance numbers may be very different
-- However, we expect relative performance relationships to remain the similar.
-- Depending on the performance of the evaluation environment, some benchmarks may not have enough time to finish within the default timeout, resulting in different performance numbers, this could be resolved by tuning `-T`/`--timeout` flag
-
 ## Supported Claims
 
-__NOTE__:
+__NOTE__: Since experiments reported in the paper were originally conducted on the StarExec platform, which have far more computing resources then most artifact evaluation environments, the absolute performance numbers may be very different. (Details can be found in Unsupported Claims.) However, we expect relative performance relationships to remain the similar.
 
-- Since experiments reported in the paper were originally conducted on the StarExec platform, which have far more computing resources then most artifact evaluation environments, the absolute performance numbers may be very different. (Details can be found in Unsupported Claims.) However, we expect relative performance relationships to remain the similar.
-- It may take hours (potentially 30+) to finish running the experiments. Using `-T`/`--timeout` to specify a shorter timeout may help, however, ***this may impact the performance stats greatly***.
+The results of the reproduction run could be analyzed by the stats analysis script `$HOME/analyze_stats.py`, run `$HOME/analyze_stats.py --help` to see a full help of its command line options.
 
-To reproduce results that support the following claims, first run every solver (DryadSynth, CVC4, EUSolver, LoopInvGen) on benchmarks in all the tracks (CLIA, INV, General) with a proper `n`:
-
-```bash
-$HOME/run_benchmarks.py -j <n>
-```
+Here are the steps to reproduce the supported claims using the analysis script after accumulating all the run results:
 
 1. DryadSynth solved more benchmarks than all other solvers in all tracks.
 
     - Inspect the stats by track
 
     ```bash
-    $HOME/analyze_stats.py --stats=solved --track=CLIA
+    $HOME/analyze_stats.py --stats=solved
     ```
 
-    - `--track` can be `CLIA`/`INV`/`General`
     - Stats for corresponding track would be printed
     - Stats fields
         - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
@@ -271,10 +290,9 @@ $HOME/run_benchmarks.py -j <n>
     - Inspect the stats by track
 
     ```bash
-    $HOME/analyze_stats.py --stats=fastest --track=CLIA
+    $HOME/analyze_stats.py --stats=fastest
     ```
 
-    - `--track` can be `CLIA`/`INV`/`General`
     - Stats for corresponding track would be printed
     - Stats fields
         - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
@@ -290,10 +308,9 @@ $HOME/run_benchmarks.py -j <n>
     - Inspect the stats by track
 
     ```bash
-    $HOME/analyze_stats.py --stats=total --track=CLIA
+    $HOME/analyze_stats.py --stats=total
     ```
 
-    - `--track` can be `CLIA`/`INV`/`General`
     - Stats for corresponding track would be printed
     - Stats fields
         - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
@@ -311,10 +328,9 @@ $HOME/run_benchmarks.py -j <n>
     - Inspect the stats by track
 
     ```bash
-    $HOME/analyze_stats.py --stats=threshold --threshold=THRESHOLD --track=CLIA
+    $HOME/analyze_stats.py --stats=threshold --threshold=THRESHOLD
     ```
 
-    - `--track` can be `CLIA`/`INV`/`General`
     - `--threshold` should be a timing threshold in seconds
     - Stats for corresponding track and threshold would be printed
     - Stats fields
@@ -336,7 +352,10 @@ $HOME/run_benchmarks.py -j <n>
     - Stats fields
         - `dryadsynth_uniquely_solved`: total number of benchmarks *uniquely* solved by DryadSynth
 
+    __NOTE__: This number may be the most significantly impacted number by tweaking `TIMEOUT` parameters as described in Step 2 of _Steps to reproduce results in paper_ section, since a lower `TIMEOUT` might not give enough time for some solvers to solve some benchmarks, resulting in very different values in this field
+
 ## Unsupported Claims
 
 - The experiments reported in the paper were originally conducted on the [StarExec](https://www.starexec.org/starexec/secure/index.jsp) platform, on which solver is executed on a 4-core, 2.4GHz CPU and 128GB memory node. The StarExec platform may have far more computing resources then most artifact evaluation environments, the absolute performance numbers may be very different from the data provided in the paper.
-- Depending on the performance of the evaluation environment, some benchmarks may not have enough time to finish within the default timeout, resulting in different performance numbers, this could be resolved by tuning `-T`/`--timeout` flag
+- Also, on StarExec platform, a post-processing script is run on all solver results to make sure the results are correct. We do not have such facilities in artifact thus we are only detecting if the solver returned any results without producing error codes. To the extent of our knowledge, this approach shall not bring in any inconsistency with the original results
+- For reference, we have included our original results in this package, see `results.xlsx`
