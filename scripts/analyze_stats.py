@@ -146,10 +146,10 @@ def print_unique():
     unique = 0
 
     for b in total_benchmarks:
-        if db['dryadsynth'].get(b, None) == "DONE" and \
-            db['cvc4'].get(b, None) != "DONE" and \
-            db['eusolver'].get(b, None) != "DONE" and \
-            db['loopinvgen'].get(b, None) != "DONE":
+        if db['dryadsynth'].get(b, None)[0] == "DONE" and \
+            db['cvc4'].get(b, None)[0] != "DONE" and \
+            db['eusolver'].get(b, None)[0] != "DONE" and \
+            db['loopinvgen'].get(b, None)[0] != "DONE":
             unique += 1
     print(f"dryadsynth_uniquely_solved: {unique}")
 
