@@ -101,7 +101,12 @@ def run_subprocess(args, solver_to_report, path_to_report):
         try:
             result.communicate(timeout=5)
         except subprocess.TimeoutExpired:
-            os.killpg(pgid, signal.SIGKILL)
+            pass
+        # At his point it needs to be cleaned up anyway
+        try:
+            os.killpg(pgid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
         if options.verbose:
             print(f"TIMEOUT: {solver_to_report} on {path_to_report}")
         return ("TIMEOUT", time() - start_time)
