@@ -190,7 +190,10 @@ def run_batch(solvers, benchmarks):
             elif options.verbose:
                 print(f"Skipping {s} on {b[0]}")
     pool.close()
-    pool.join()
+    try:
+        pool.join()
+    except KeyboardInterrupt:
+        print("Exiting prematurely, saving all current results...")
     for result_pair in result_pool:
         (s, b, result) = result_pair
         if not s in db:
@@ -237,10 +240,7 @@ def main():
     if not options.stats_only:
         benchmarks = get_benchmarks()
         print(f"Running solvers: {options.solvers} on {len(benchmarks)} benchmark(s)")
-        try:
-            run_batch(options.solvers, benchmarks)
-        except KeyboardInterrupt:
-            print("Exiting prematurely, saving all current results...")
+        run_batch(options.solvers, benchmarks)
         with open(options.database, "w") as f:
             print(f"Writing to {options.database}")
             json.dump(db, f, indent=2)
