@@ -195,11 +195,13 @@ def run_batch(solvers, benchmarks):
     except KeyboardInterrupt:
         print("Exiting prematurely, saving all current results...")
         pool.terminate()
+        pool.join()
     for result_pair in result_pool:
         (s, b, result) = result_pair
         if not s in db:
             db[s] = {}
-        db[s][b[0]] = result.get()
+        if result.ready():
+            db[s][b[0]] = result.get()
 
 def print_stats(solvers=None, benchmarks=None):
     for s in db:
