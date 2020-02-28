@@ -31,13 +31,13 @@ __NOTE__:
 4. Once you are in, we could do some basic testings to ensure everything works. For example we could use our test script to run `DryadSynth` on all `CLIA` benchmarks
 
     ```bash
-    $ $HOME/run_benchmarks.py -j 4 -t CLIA
+    $ $HOME/run_benchmarks.py -j 4 -t CLIA -s dryadsynth
     Running solvers: ['dryadsynth'] on 88 benchmark(s)
     Writing to /home/user/result.json
     Solver dryadsynth TOTAL  88:DONE  88, TIMEOUT   0, ...
     ```
 
-    It should not take more than a few minutes to finish these. Once you see something like above, it's a good sign of image running well.
+    It should not take more than a few minutes to finish these. Once you see something like above, it's a good sign of docker image running well.
 
 ### Manually Building Image
 
