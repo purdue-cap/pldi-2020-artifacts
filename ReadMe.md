@@ -178,8 +178,6 @@ __NOTE__:
 
 ### Steps to reproduce results in paper
 
-__TODO: Check against paper and make sure this part is correct__
-
 1. Clean up any old run results
 
    ```bash
