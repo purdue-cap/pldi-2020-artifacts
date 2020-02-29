@@ -278,7 +278,7 @@ Here are the steps to reproduce the supported claims using the analysis script a
     $HOME/analyze_stats.py --stats=solved
     ```
 
-    - Stats for corresponding track would be printed
+    - Stats for each track would be printed in sequence
     - Stats fields
         - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
         - `dryadsynth`: total number of benchmarks solved by DryadSynth
@@ -294,7 +294,7 @@ Here are the steps to reproduce the supported claims using the analysis script a
     $HOME/analyze_stats.py --stats=fastest
     ```
 
-    - Stats for corresponding track would be printed
+    - Stats for each track would be printed in sequence
     - Stats fields
         - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
         - `dryadsynth`: total number of benchmarks *fastest* solved by DryadSynth
@@ -312,7 +312,7 @@ Here are the steps to reproduce the supported claims using the analysis script a
     $HOME/analyze_stats.py --stats=total
     ```
 
-    - Stats for corresponding track would be printed
+    - Stats for each track would be printed in sequence
     - Stats fields
         - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
         - `dryadsynth_solved`: total number of benchmarks solved by DryadSynth
@@ -333,9 +333,9 @@ Here are the steps to reproduce the supported claims using the analysis script a
     ```
 
     - `--threshold` should be a timing threshold in seconds
-    - Stats for corresponding track and threshold would be printed
+    - Stats for each track would be printed in sequence
     - Stats fields
-        - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track
+        - `Track`: track that the benchmarks are in, followed by total number of benchmarks in this track, and then the threshold
         - `dryadsynth`: total number of benchmarks solved by DryadSynth under the timing threshold
         - `cvc4`: total number of benchmarks solved by CVC4 under the timing threshold
         - `eusolver`: total number of benchmarks solved by EUSolver under the timing threshold
