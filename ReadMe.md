@@ -111,7 +111,6 @@ If you wish to run any solver manually, here are a list of entry points:
 The main test facility would be the test script at `$HOME/run_benchmarks.py`, you could see its full help documentation by running `$HOME/run_benchmarks.py --help`:
 
 ```plaintext
-$ $HOME/run_benchmarks.py --help
 Usage: run_benchmarks.py [options]
 
 Options:
@@ -135,6 +134,10 @@ Options:
                         want to use this, you need to configure enclosing
                         container to provide sufficient CPU cores or it won't
                         improve any performance, default: 1
+  -e EXCLUDES, --exclude=EXCLUDES
+                        Benchmark name to exclude, benchmark is matched by
+                        substring, could be repeated to specify multiple, if
+                        omitted, none would be excluded
   -d DATABASE, --database=DATABASE
                         Database JSON file to read from / write to, default:
                         /home/user/result.json
@@ -196,6 +199,14 @@ $HOME/run_benchmarks.py -s dryadsynth -s cvc4 -b -j 4 \
     $HOME/benchmarks/General/<General benchmark>.sl \
     $HOME/benchmarks/INV/From 2018/<INV benchmark>.sl
 ```
+
+Furthermore, you could use `-e` or `--exclude` to exclude some benchmarks from the benchmark pool to be running:
+
+```bash
+$HOME/run_benchmarks.py -s dryadsynth -s cvc4 -b -j 4 -e max19 -e max20
+```
+
+The excluded benchmarks are matched with substring matching. This helps to exclude some benchmarks that may cause OOM kills on a machine with fewer computing resources.
 
 __NOTE__:
 
