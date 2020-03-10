@@ -30,6 +30,10 @@ parser.add_option("-j", "--jobs", dest="jobs", type="int",
                 "enclosing container to provide sufficient CPU cores "
                 "or it won't improve any performance, default: %default",
                 default=1)
+parser.add_option("-e", "--exclude", dest="excludes", action="append",
+                help="Benchmark name to exclude, benchmark is matched by substring,"
+                " could be repeated to specify multiple, if omitted, none would be excluded",
+                default=[])
 parser.add_option("-d", "--database", dest="database",
                 help="Database JSON file to read from / write to, default: %default",
                 default="/home/user/result.json")
@@ -67,6 +71,12 @@ if options.solvers == []:
 if options.tracks == []:
     options.tracks = ["CLIA", "INV", "General"]
 
+def is_excluded(path):
+    for ex in options.excludes:
+        if ex in path:
+            return True
+    return False
+
 # Returns [(benchmark_path, benchmark_track)]
 def get_benchmarks():
     if options.list_benchmarks:
@@ -74,15 +84,17 @@ def get_benchmarks():
         if not all(s.startswith(options.benchmark_base) for s in paths):
             print("Supplied benchmark file must be in base directory")
             sys.exit(1)
+        paths = [s for s in paths if not is_excluded(s)]
         track = [os.path.relpath(s, options.benchmark_base) for s in paths]
         track = [s.split("/")[0] for s in track]
         return list(zip(paths, track))
     benchmarks = []
     for t in options.tracks:
-            base = os.path.join(options.benchmark_base, t)
-            paths = [s for s in os.listdir(base) if s.endswith(".sl")]
-            paths = [os.path.join(base, s) for s in paths]
-            benchmarks.extend((s, t) for s in paths)
+        base = os.path.join(options.benchmark_base, t)
+        paths = [s for s in os.listdir(base) if s.endswith(".sl")]
+        paths = [os.path.join(base, s) for s in paths]
+        paths = [s for s in paths if not is_excluded(s)]
+        benchmarks.extend((s, t) for s in paths)
     return benchmarks
 
 # returns result = (one_of("DONE", "NONZERO", "NO_OUTPUT", "TIMEOUT"), running_time)
